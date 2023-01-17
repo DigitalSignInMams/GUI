@@ -11,6 +11,7 @@ import tkinter as tk
 connected = False
 while not connected:
 	try:
+		print("Trying to connect")
 		mydb = mysql.connector.connect(
 				host="mysql.wpi.edu",
 				user="ctang5",
@@ -18,10 +19,10 @@ while not connected:
 				database="mams_siso",
 			)
 		sql = mydb.cursor()
-		print("connected")
+		print("Connected to WPI SQL database!")
 		connected = True
 	except:
-		print("Not connected")
+		print("Not connected! Trying again to connect.")
 		sleep(4)
 		continue
 
@@ -42,12 +43,11 @@ rdwr_options = {
 root = Tk()
 root.title("Sign In / Sign Out")
 root.geometry('500x500')
-a = Label(root, text="SCAN RFID",font=("calibre", 40))
+a = Label(root, text="Scan RFID Here",font=("calibre", 40))
 a.place(relx=0.5, rely=0.05, anchor=CENTER)
-print(1)
 
 def submit(id):
-    success = tk.Label(root, text = f'Signed In! {id}', font=('calibre',20, 'bold'))
+    success = tk.Label(root, text = f'Recorded! ID: {id}', font=('calibre',20, 'bold'))
     success.place(relx=0.1, rely=0.5)
     root.after(500, success.destroy)
 
@@ -60,11 +60,11 @@ def scan():
 		try:
 			target = clf.sense(RemoteTarget('106A'))
 		except:
-			print('Error.')
+			print('Error connecting to RFID module')
 		if target is None:
-			print(1)
+			print("-")
 		else:
-			print(2)
+			print("Detected RFID")
 			tag = nfc.tag.activate(clf, target)
 			try:
 				command = f"INSERT INTO daily VALUES(get_id({str(binascii.hexlify(tag.identifier).decode())}), CURRENT_DATE(), CURRENT_TIME());"
@@ -72,15 +72,16 @@ def scan():
 				submit(str(binascii.hexlify(tag.identifier).decode()))
 				sql.execute(command)
 				mydb.commit()
+				root.configure(bg="green")
 			except:
-				print("RFID not found, please try something else")
+				print("RFID not found, please try again.")
+				root.configure(bg="red")
 
 def run_periodically(func):
 	scan()
+	root.configure(bg="white")
 	root.after(25, run_periodically, func)
 
 run_periodically(scan)
+
 root.mainloop()
-
-
-

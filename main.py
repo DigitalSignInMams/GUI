@@ -32,42 +32,40 @@ with nfc.ContactlessFrontend('tty:S0:pn532') as clf:
 				password="CT@ng5",
 				database="mams_siso",
 				)
-			sql = mydb.cursor()
+			sql = mydb.cursor(buffered=True)
 			print("connected")
 			connected = True
 		except:
-			print("Not connected")
+			print("Not connected. Trying again.")
 			sleep(10)
 			continue
 
 	while True:
-		
 		try:
-			#print("I'm trying!")
 			target = clf.sense(RemoteTarget('106A'))
-			#print(target)
 		except:
-			print('Error.')
+			print('Error in connecting to RFID module.')
 			continue
-		
 		if target is None:
+			print("Scanning")
 			sleep(0.25)
 			continue
-		
-		#serial = target.sdd_res.hex()
 		tag = nfc.tag.activate(clf, target)
 		try:
+			print("———————————————————————————————")
 			command = f"INSERT INTO daily VALUES(get_id({str(binascii.hexlify(tag.identifier).decode())}), CURRENT_DATE(), CURRENT_TIME());"
-			print("RFID: " + binascii.hexlify(tag.identifier).decode())
-			last_rfid = str(binascii.hexlify(tag.identifier).decode())
+			print("RFID ID: " + binascii.hexlify(tag.identifier).decode())
 			sql.execute(command)
 			mydb.commit()
+			command = f"SELECT first_name, last_name FROM person WHERE student_id = get_id({binascii.hexlify(tag.identifier).decode()})"
+			sql.execute(command)
+			result = sql.fetchall()
+			print(f"Welcome {result[0]} {result[1]}")
+			print("———————————————————————————————")
 			sleep(5)
 		except:
-			print("RFID not found, please try something else")
+			print("RFID ID not recognized, please try something else")
 			sleep(2)
-		
-		
 	mydb.close()
 
 	
