@@ -8,6 +8,7 @@ mydb = mysql.connector.connect(
   )
 sql = mydb.cursor(buffered=True)
 
+
 command = f"SELECT first_name, last_name FROM person WHERE student_id = get_id(43704390)"
 sql.execute(command)
 result = sql.fetchall()

@@ -20,7 +20,6 @@ rdwr_options = {
 	'on_connect': lambda tag: False,
 	} 
 
-
 with nfc.ContactlessFrontend('tty:S0:pn532') as clf:
 	connected = False
 	
@@ -60,7 +59,7 @@ with nfc.ContactlessFrontend('tty:S0:pn532') as clf:
 			command = f"SELECT first_name, last_name FROM person WHERE student_id = get_id({binascii.hexlify(tag.identifier).decode()})"
 			sql.execute(command)
 			result = sql.fetchall()
-			print(f"Welcome {result[0]} {result[1]}")
+			print(f"Welcome {result[0][0]} {result[0][1]}")
 			print("———————————————————————————————")
 			sleep(5)
 		except:
