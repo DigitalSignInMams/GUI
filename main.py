@@ -54,7 +54,7 @@ with nfc.ContactlessFrontend('tty:S0:pn532') as clf:
         tag = nfc.tag.activate(clf, target)
         try:
             print("———————————————————————————————")
-            command = f"INSERT INTO daily VALUES(get_id({str(binascii.hexlify(tag.identifier).decode())}), CURRENT_DATE(), CURRENT_TIME());"
+            command = f"INSERT INTO daily VALUES(get_id(\"{str(binascii.hexlify(tag.identifier).decode())}\"), CURRENT_DATE(), CURRENT_TIME());"
             print("RFID ID: " + binascii.hexlify(tag.identifier).decode())
             sql.execute(command)
             mydb.commit()

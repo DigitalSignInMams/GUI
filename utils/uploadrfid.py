@@ -41,7 +41,7 @@ with open("utils/rfid.csv", newline='') as csvfile:
             continue
         fname = line[3]
         lname = line[2]
-        command = f"INSERT INTO rfid VALUES({id}, {rfid_uid});"
+        command = f"INSERT INTO rfid VALUES({id}, \"{rfid_uid}\");"
         sql.execute(command)
         mydb.commit()
     
